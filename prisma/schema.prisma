@@ -1,0 +1,38 @@
+// Prisma schema for the finance tracker
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Supabase: use the pooled "Transaction" connection string for runtime queries
+  url       = env("DATABASE_URL")
+  // and the direct connection string for migrations
+  directUrl = env("DIRECT_URL")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+// userId stores the Supabase Auth user id (auth.users.id). Supabase manages that
+// table in its own schema, so it isn't modeled here as a formal Prisma relation.
+model Transaction {
+  id          String          @id @default(cuid())
+  userId      String
+  type        TransactionType
+  amount      Decimal         @db.Decimal(12, 2)
+  category    String
+  description String?
+  date        DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([type])
+  @@index([date])
+  @@map("transactions")
+}
