@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Inbox } from "lucide-react";
+import { Trash2, Inbox, Pencil } from "lucide-react";
 import type { Transaction } from "@/types";
 import { formatDate, formatSignedCurrency } from "@/lib/format";
 
@@ -15,7 +15,7 @@ export function TransactionList({
   const [filter, setFilter] = useState<"ALL" | "INCOME" | "EXPENSE">("ALL");
 
   const filtered = transactions.filter(
-    (t) => filter === "ALL" || t.type === filter
+    (t) => filter === "ALL" || t.type === filter,
   );
 
   return (
@@ -77,6 +77,12 @@ export function TransactionList({
                   {t.type === "INCOME" ? "+" : "-"}
                   {formatSignedCurrency(t.amount)}
                 </span>
+                {/* <button
+                  aria-label={`Edit ${t.category} entry`}
+                  className="rounded p-1 text-ink-faint opacity-0 transition-opacity hover:bg-gain-soft hover:text-gain group-hover:opacity-100"
+                >
+                  <Pencil className="h-4 w-4" strokeWidth={1.75} />
+                </button> */}
                 <button
                   onClick={() => onDelete(t.id)}
                   aria-label={`Delete ${t.category} entry`}

@@ -23,6 +23,9 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Ledger — Finance Tracker",
   description: "Track income and expenses, and see where your money goes.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
