@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { BookOpen } from "lucide-react";
 import type { Transaction, TransactionInput } from "@/types";
 import { SummaryCards } from "@/components/SummaryCards";
@@ -16,10 +16,12 @@ export function Dashboard({
   initialTransactions: Transaction[];
   userEmail: string;
 }) {
-  const [transactions, setTransactions] = useState<Transaction[]>(
-    initialTransactions
-  );
+  const [transactions, setTransactions] =
+    useState<Transaction[]>(initialTransactions);
+  const [editingTransaction, setEditingTransaction] =
+    useState<Transaction | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
 
   const totals = useMemo(() => {
     const income = transactions
@@ -30,6 +32,12 @@ export function Dashboard({
       .reduce((s, t) => s + t.amount, 0);
     return { income, expense, net: income - expense };
   }, [transactions]);
+
+  function sortByDateDesc(list: Transaction[]) {
+    return [...list].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
+  }
 
   async function handleCreate(input: TransactionInput) {
     setError(null);
@@ -44,16 +52,42 @@ export function Dashboard({
       return;
     }
     const created: Transaction = await res.json();
+    setTransactions((prev) => sortByDateDesc([created, ...prev]));
+  }
+
+  async function handleUpdate(id: string, input: TransactionInput) {
+    setError(null);
+    const res = await fetch(`/api/transactions/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setError(body.error || "Could not update that entry. Please try again.");
+      return;
+    }
+    const updated: Transaction = await res.json();
     setTransactions((prev) =>
-      [created, ...prev].sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      )
+      sortByDateDesc(prev.map((t) => (t.id === id ? updated : t))),
     );
+    setEditingTransaction(null);
+  }
+
+  function handleEdit(transaction: Transaction) {
+    setError(null);
+    setEditingTransaction(transaction);
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function handleCancelEdit() {
+    setEditingTransaction(null);
   }
 
   async function handleDelete(id: string) {
     const prev = transactions;
     setTransactions((t) => t.filter((tx) => tx.id !== id));
+    if (editingTransaction?.id === id) setEditingTransaction(null);
     const res = await fetch(`/api/transactions/${id}`, { method: "DELETE" });
     if (!res.ok) {
       setTransactions(prev);
@@ -98,11 +132,21 @@ export function Dashboard({
         />
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-          <div className="lg:col-span-2">
-            <TransactionForm onSubmit={handleCreate} />
+          <div ref={formRef} className="lg:col-span-2">
+            <TransactionForm
+              editingTransaction={editingTransaction}
+              onSubmit={handleCreate}
+              onUpdate={handleUpdate}
+              onCancelEdit={handleCancelEdit}
+            />
           </div>
           <div className="lg:col-span-3">
-            <TransactionList transactions={transactions} onDelete={handleDelete} />
+            <TransactionList
+              transactions={transactions}
+              editingId={editingTransaction?.id ?? null}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </div>
         </div>
 

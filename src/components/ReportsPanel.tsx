@@ -49,12 +49,12 @@ export function ReportsPanel() {
   const showExpense = view !== "INCOME";
 
   return (
-    <section className="rounded-lg border border-line bg-paper-raised p-5 shadow-card">
+    <section className="rounded-lg border border-line bg-paper-raised p-5 shadow-card overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-display text-lg">Reports</h2>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex gap-1 rounded-md bg-paper p-1 text-sm">
+          <div className="hidden gap-2 rounded-md bg-paper p-1 text-sm md:flex">
             {(["BOTH", "INCOME", "EXPENSE"] as ViewFilter[]).map((v) => (
               <button
                 key={v}
@@ -70,7 +70,32 @@ export function ReportsPanel() {
             ))}
           </div>
 
-          <div className="flex gap-1 rounded-md bg-paper p-1 text-sm">
+          <div className="block w-full gap-2 rounded-md bg-paper p-1 text-sm md:hidden">
+            <select
+              className="w-full rounded px-2.5 py-1 transition-colors bg-paper text-ink-soft hover:text-ink focus:outline-none"
+              onChange={(e) => setView(e.target.value as ViewFilter)}
+            >
+              {(["BOTH", "INCOME", "EXPENSE"] as ViewFilter[]).map((v) => (
+                <option
+                  key={v}
+                  value={v}
+                  className={`rounded px-2.5 py-1 transition-colors ${
+                    view === v
+                      ? "bg-paper-raised text-ink shadow-sm"
+                      : "text-ink-soft hover:text-ink"
+                  }`}
+                >
+                  {v === "BOTH"
+                    ? "Both"
+                    : v === "INCOME"
+                      ? "Income"
+                      : "Expenses"}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="hidden gap-2 rounded-md bg-paper p-1 text-sm md:flex">
             {PERIODS.map((p) => (
               <button
                 key={p.value}
@@ -85,6 +110,26 @@ export function ReportsPanel() {
               </button>
             ))}
           </div>
+          <div className="block w-full gap-2 rounded-md bg-paper p-1 text-sm md:hidden">
+            <select
+              className="w-full rounded px-2.5 py-1 transition-colors bg-paper text-ink-soft hover:text-ink focus:outline-none"
+              onChange={(e) => setPeriod(e.target.value as Period)}
+            >
+              {PERIODS.map((p) => (
+                <option
+                  key={p.value}
+                  value={p.value}
+                  className={`rounded px-2.5 py-1 transition-colors ${
+                    period === p.value
+                      ? "bg-brass text-white"
+                      : "text-ink-soft hover:text-ink"
+                  }`}
+                >
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -94,10 +139,22 @@ export function ReportsPanel() {
         </div>
       ) : (
         <>
-          <div className="mt-5 grid grid-cols-3 gap-4 border-b border-line pb-5">
-            <Stat label="This period · income" value={report.totals.income} tone="gain" />
-            <Stat label="This period · expenses" value={report.totals.expense} tone="loss" />
-            <Stat label="This period · net" value={report.totals.net} tone={report.totals.net >= 0 ? "ink" : "loss"} />
+          <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-line pb-5">
+            <Stat
+              label="This period · income"
+              value={report.totals.income}
+              tone="gain"
+            />
+            <Stat
+              label="This period · expenses"
+              value={report.totals.expense}
+              tone="loss"
+            />
+            <Stat
+              label="This period · net"
+              value={report.totals.net}
+              tone={report.totals.net >= 0 ? "ink" : "loss"}
+            />
           </div>
 
           <div className="mt-6 h-72 w-full">
@@ -126,10 +183,22 @@ export function ReportsPanel() {
                   }}
                 />
                 {showIncome && (
-                  <Bar dataKey="income" name="Income" fill="#2F6B4F" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                  <Bar
+                    dataKey="income"
+                    name="Income"
+                    fill="#2F6B4F"
+                    radius={[3, 3, 0, 0]}
+                    maxBarSize={28}
+                  />
                 )}
                 {showExpense && (
-                  <Bar dataKey="expense" name="Expense" fill="#A6402A" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                  <Bar
+                    dataKey="expense"
+                    name="Expense"
+                    fill="#A6402A"
+                    radius={[3, 3, 0, 0]}
+                    maxBarSize={28}
+                  />
                 )}
               </BarChart>
             </ResponsiveContainer>
@@ -194,7 +263,9 @@ function CategoryBreakdown({
     <div>
       <h3 className="text-sm font-medium text-ink-soft">{title}</h3>
       {items.length === 0 ? (
-        <p className="mt-3 text-sm text-ink-faint">Nothing recorded this period.</p>
+        <p className="mt-3 text-sm text-ink-faint">
+          Nothing recorded this period.
+        </p>
       ) : (
         <ul className="mt-3 space-y-3">
           {items.map((item) => (
