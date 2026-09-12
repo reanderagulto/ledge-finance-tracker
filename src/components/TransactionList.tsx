@@ -72,7 +72,9 @@ export function TransactionList({
                   </div>
                   <p className="mt-0.5 truncate text-sm text-ink-soft">
                     {formatDate(t.date)}
-                    {t.description ? ` · ${t.description}` : ""}
+                    {t.description
+                      ? ` · ${t.description.length > 30 ? `${t.description.slice(0, 30)}…` : t.description}`
+                      : ""}
                   </p>
                 </div>
 
