@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     console.error(err);
     return NextResponse.json(
       { error: "Could not load transactions." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -64,20 +64,20 @@ export async function POST(req: NextRequest) {
     if (type !== "INCOME" && type !== "EXPENSE") {
       return NextResponse.json(
         { error: "Type must be INCOME or EXPENSE." },
-        { status: 400 }
+        { status: 400 },
       );
     }
     const numericAmount = Number(amount);
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
       return NextResponse.json(
         { error: "Amount must be a positive number." },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (!category || typeof category !== "string") {
       return NextResponse.json(
         { error: "Category is required." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -94,13 +94,13 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       { ...created, amount: Number(created.amount) },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (err) {
     console.error(err);
     return NextResponse.json(
       { error: "Could not create transaction." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

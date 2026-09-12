@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 // DELETE /api/transactions/:id
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const supabase = await createClient();
@@ -22,17 +22,14 @@ export async function DELETE(
       where: { id, userId: user.id },
     });
     if (count === 0) {
-      return NextResponse.json(
-        { error: "Entry not found." },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Entry not found." }, { status: 404 });
     }
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error(err);
     return NextResponse.json(
       { error: "Could not delete transaction." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -40,7 +37,7 @@ export async function DELETE(
 // PUT /api/transactions/:id
 export async function PUT(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const supabase = await createClient();
@@ -70,10 +67,7 @@ export async function PUT(
     });
 
     if (count === 0) {
-      return NextResponse.json(
-        { error: "Entry not found." },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Entry not found." }, { status: 404 });
     }
 
     const updated = await prisma.transaction.findUnique({ where: { id } });
@@ -85,7 +79,7 @@ export async function PUT(
     console.error(err);
     return NextResponse.json(
       { error: "Could not update transaction." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
